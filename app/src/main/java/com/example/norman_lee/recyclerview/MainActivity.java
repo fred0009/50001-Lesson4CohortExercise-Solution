@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //TODO 12.1 Set up an Explicit Intent to DataEntry Activity with startActivityForResult (no coding)
+        //TODO 12.5a Set up an Activity Launcher to process the data returned
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }*/
 
-    //TODO 12.5 Write onActivityResult to get the data passed back from DataEntry and add to DataSource object
+    //TODO 12.5b Write onActivityResult to get the data passed back from DataEntry and add to DataSource object
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

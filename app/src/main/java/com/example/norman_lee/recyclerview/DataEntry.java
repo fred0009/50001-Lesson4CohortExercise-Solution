@@ -38,6 +38,7 @@ public class DataEntry extends AppCompatActivity {
         buttonOK = findViewById(R.id.buttonOK);
 
         //TODO 12.2 Set up an implicit intent to the image gallery (standard code)
+        //TODO 12.3a Set up a launcher to process the result of the selection
         buttonSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,8 +65,9 @@ public class DataEntry extends AppCompatActivity {
 
     }
 
-    //TODO 12.3 Write onActivityResult to get the image selected
+    //TODO 12.3b Write onActivityResult to get the image selected
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
         if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
 
         }
