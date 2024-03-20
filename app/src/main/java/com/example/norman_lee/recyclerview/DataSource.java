@@ -2,71 +2,22 @@ package com.example.norman_lee.recyclerview;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import java.util.ArrayList;
+public interface DataSource {
 
-public class DataSource {
+    void addData(String name, String path);
 
+    void addData(String name, Bitmap bitmapImage, Context context);
+    void removeData(int position);
 
-    private ArrayList<CardData> dataArrayList;
+    String getName(int i);
 
-    DataSource(){
-        dataArrayList = new ArrayList<>();
-    }
+    String getPath(int i);
+    void putImageOnImageView(int i, ImageView imageView);
 
-    void addData(String name, String path){
-        CardData c = new CardData(name, path);
-        dataArrayList.add(c);
-    }
+    void putNameOnTextView(int i, TextView textView);
 
-    void addData(String name, Bitmap bitmapImage, Context context){
-
-        String path = Utils.saveToInternalStorage(bitmapImage, name, context);
-        CardData c = new CardData(name, path);
-        dataArrayList.add(c);
-    }
-
-    void removeDataData(int position){
-        dataArrayList.remove(position);
-    }
-
-    String getName(int i){
-        return dataArrayList.get(i).getName();
-    }
-
-    String getPath(int i){
-        return dataArrayList.get(i).getPath();
-    }
-
-    Bitmap getImage(int i){
-        String name = dataArrayList.get(i).getName();
-        String path = dataArrayList.get(i).getPath();
-        return Utils.loadImageFromStorage(path, name);
-
-    }
-
-    int getSize(){
-        return dataArrayList.size();
-    }
-
-    private static class CardData{
-
-        private String name;
-        private String path;
-
-        private CardData( String name, String path){
-            this.name = name;
-            this.path = path;
-        }
-
-
-        private String getName() {
-            return name;
-        }
-
-
-        private String getPath(){
-            return path;
-        }
-    }
+    int getSize();
 }

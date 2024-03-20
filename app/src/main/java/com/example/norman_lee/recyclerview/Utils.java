@@ -74,18 +74,18 @@ public class Utils {
      * @return DataSource object
      */
 
-    static DataSource firstLoadImages(Context context,  ArrayList<Integer> drawablesId){
+    static LocalStorage firstLoadImages(Context context, ArrayList<Integer> drawablesId){
 
-        DataSource dataSource = new DataSource();
+        LocalStorage localStorage = new LocalStorage();
 
         for(Integer rid: drawablesId){
             Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), rid);
             String imageName = context.getResources().getResourceEntryName(rid);
             Log.i(LOGCAT,"" + imageName);
-            dataSource.addData(imageName, bitmap, context);
+            localStorage.addData(imageName, bitmap, context);
         }
 
-        return dataSource;
+        return localStorage;
 
 
     }
