@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         //TODO 11.1 Get references to the widgets
-        recyclerView = findViewById(R.id.charaRecyclerView);
-        imageViewAdded = findViewById(R.id.imageViewAdded);
+        recyclerView = null;
+        imageViewAdded = null;
 
         //TODO 12.7 Load the Json string from shared Preferences
         //TODO 12.8 Initialize your dataSource object with the Json string
@@ -69,9 +69,7 @@ public class MainActivity extends AppCompatActivity {
         }
         //TODO 11.3 --> Go to CharaAdapter
         //TODO 11.8 Complete the necessary code to initialize your RecyclerView
-        charaAdapter = new CharaAdapter(this, dataSource);
-        recyclerView.setAdapter( charaAdapter );
-        recyclerView.setLayoutManager( new GridLayoutManager(this, 3));
+        charaAdapter = null;
 
         //TODO 12.9 [OPTIONAL] Add code to delete a RecyclerView item upon swiping. See notes for the code.
 
