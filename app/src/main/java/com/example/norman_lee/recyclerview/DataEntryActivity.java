@@ -16,19 +16,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class DataEntry extends AppCompatActivity {
+public class DataEntryActivity extends AppCompatActivity {
 
     EditText editTextNameEntry;
     Button buttonSelectImage;
     Button buttonOK;
     ImageView imageViewSelected;
     Bitmap bitmap;
-    final static int REQUEST_IMAGE_GET = 2000;
     final static String KEY_PATH = "Image";
     final static String KEY_NAME = "Name";
 
@@ -58,7 +55,7 @@ public class DataEntry extends AppCompatActivity {
 
                             try {
                                 bitmap = MediaStore.Images.Media.getBitmap(
-                                        DataEntry.this.getContentResolver(),
+                                        DataEntryActivity.this.getContentResolver(),
                                         photoUri
                                 );
                             } catch (IOException e) {
@@ -88,7 +85,7 @@ public class DataEntry extends AppCompatActivity {
                 save the bitmap to app's internal storage,
                 and get the path of its location */
                 String name = editTextNameEntry.getText().toString();
-                String path = Utils.saveToInternalStorage( bitmap, name, DataEntry.this);
+                String path = Utils.saveToInternalStorage( bitmap, name, DataEntryActivity.this);
 
                 /* Recall that DataEntry was invoked by an intent from MainActivity that expected a result
                 ie. MainActivity launched DataEntry for the user to enter a name and get an image,
@@ -111,13 +108,5 @@ public class DataEntry extends AppCompatActivity {
         //TODO 12.5 --> Go back to MainActivity
 
 
-    }
-
-    //TODO 12.3b Write onActivityResult to get the image selected
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode,resultCode,data);
-        if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
-
-        }
     }
 }

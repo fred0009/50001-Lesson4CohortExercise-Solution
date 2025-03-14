@@ -22,16 +22,20 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/charaRecyclerView"
+        android:id="@+id/cardRecycleView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:scrollbarSize="20dp"
         android:layout_weight="0.70"></androidx.recyclerview.widget.RecyclerView>
 
     <ImageView
         android:id="@+id/imageViewAdded"
         android:src="@drawable/questionmark"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
         android:layout_weight="0.30"></ImageView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

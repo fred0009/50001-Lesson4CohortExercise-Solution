@@ -1,23 +1,26 @@
 package com.example.norman_lee.recyclerview;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -26,15 +29,14 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
-    CharaAdapter charaAdapter;
+    CardAdapter cardAdapter;
     ImageView imageViewAdded;
+    ArrayList<CardModel> dataSrc = new ArrayList<>();
 
-    DataSource dataSource;
-
-    final String KEY_DATA = "data";
-    final String LOGCAT = "RV";
+    final String KEY_DATA = "SHARED_PREF_DATA";
+    final String KEY_DATA_NAME = "SHARED_PREF_DATA_NAME";
+    final String LOGCAT = "POKEDEX";
     final String PREF_FILE = "mainsharedpref";
-    final int REQUEST_CODE_IMAGE = 1000;
 
     SharedPreferences mPreferences;
 
@@ -47,31 +49,43 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         //TODO 11.1 Get references to the widgets
-        recyclerView = null;
-        imageViewAdded = null;
+        recyclerView = findViewById(R.id.cardRecycleView);
+        imageViewAdded = findViewById(R.id.imageViewAdded);
 
         //TODO 12.7 Load the Json string from shared Preferences
         //TODO 12.8 Initialize your dataSource object with the Json string
-        //TODO 11.2 Create your dataSource object by calling Utils.firstLoadImages
         mPreferences = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
         Gson gson = new Gson();
         String json = mPreferences.getString(KEY_DATA, "");
-        if( json.isEmpty() ){
-            ArrayList<Integer> arrayListIds = new ArrayList<>();
-            arrayListIds.add( R.drawable.pikachu);
-            arrayListIds.add( R.drawable.psyduck);
-            arrayListIds.add( R.drawable.squirtle);
-            arrayListIds.add( R.drawable.spearow);
-            arrayListIds.add( R.drawable.bulbasaur);
-            dataSource = Utils.firstLoadImages(this, arrayListIds);
-        }else{
-            dataSource = gson.fromJson(json, LocalStorage.class);
-        }
-        //TODO 11.3 --> Go to CharaAdapter
-        //TODO 11.8 Complete the necessary code to initialize your RecyclerView
-        charaAdapter = null;
+        String jsonNames = mPreferences.getString(KEY_DATA_NAME, "");
 
-        //TODO 12.9 [OPTIONAL] Add code to delete a RecyclerView item upon swiping. See notes for the code.
+        //TODO 11.2 Initialize your dataSource object with drawables resource
+        if( json.equals("") ){
+            Log.d(LOGCAT, "onCreate: empty data... initiating some images from drawable resource");
+            dataSrc.add( Utils.convertDrawableToCardModel(this, R.drawable.pikachu));
+            dataSrc.add( Utils.convertDrawableToCardModel(this, R.drawable.psyduck));
+            dataSrc.add( Utils.convertDrawableToCardModel(this, R.drawable.squirtle));
+            dataSrc.add( Utils.convertDrawableToCardModel(this, R.drawable.spearow));
+            dataSrc.add( Utils.convertDrawableToCardModel(this, R.drawable.bulbasaur));
+        }else{
+            Log.d(LOGCAT, "onCreate: data exist " + json);
+            ArrayList<String> filePaths = gson.fromJson(json, ArrayList.class);
+            ArrayList<String> names = gson.fromJson(jsonNames, ArrayList.class);
+            for (int i=0;i<filePaths.size();i++) {
+                String name = names.get(i);
+                Bitmap img = Utils.loadImageFromStorage(filePaths.get(i),name);
+                dataSrc.add(new CardModel(name, img));
+            }
+            Log.d(LOGCAT, "onCreate: data loaded " + json);
+        }
+
+        //TODO 11.3 --> Go to CardAdapter
+        //TODO 11.8 Complete the necessary code to initialize your RecyclerView
+        cardAdapter = new CardAdapter(MainActivity.this, dataSrc);
+        recyclerView.setAdapter(cardAdapter);
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+
+
 
         //TODO 12.1 Set up an Explicit Intent to DataEntry Activity with startActivityForResult (no coding)
         //TODO 12.5a Set up an Activity Launcher to process the data returned
@@ -82,14 +96,16 @@ public class MainActivity extends AppCompatActivity {
                     public void onActivityResult(ActivityResult result) {
                         // YOU SAY WHAT YOU WANT TO DO WHEN YOU GET THE RESULT
                         // get a Bundle object which contains the Extras
+                        Log.d(LOGCAT, "onActivityResult: " + result);
                         Bundle b = result.getData().getExtras();
-                        String name = b.getString(DataEntry.KEY_NAME);
-                        String path = b.getString(DataEntry.KEY_PATH);
-                        dataSource.addData(name, path);
-                        charaAdapter.notifyDataSetChanged();
+                        String name = b.getString(DataEntryActivity.KEY_NAME);
+                        String path = b.getString(DataEntryActivity.KEY_PATH);
+                        Bitmap img = Utils.loadImageFromStorage(path, name);
+                        dataSrc.add(new CardModel(name, img));
+                        cardAdapter.notifyItemInserted(dataSrc.size()-1);
 
                         // -- Displays the selected image at the big ? widget --
-                        dataSource.putImageOnImageView(  dataSource.getSize()-1, imageViewAdded);
+                        imageViewAdded.setImageBitmap(img);
                     }
                 }
 
@@ -99,33 +115,50 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Intent intent = new Intent(MainActivity.this, DataEntry.class);
+                Intent intent = new Intent(MainActivity.this, DataEntryActivity.class);
                 launcher.launch(intent);
-
             }
         });
+
+        //TODO 12.9 [OPTIONAL] Add code to delete a RecyclerView item upon swiping. See notes for the code.
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT ) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
+                return false;
+
+            }
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                //code to delete the view goes here
+                CardAdapter.CardViewHolder cardVH = (CardAdapter.CardViewHolder) viewHolder;
+                int position = cardVH.getBindingAdapterPosition();
+                dataSrc.remove(position);
+                cardAdapter.notifyItemRemoved(position);
+            }
+        };
+        ItemTouchHelper itemTouchHelper
+                = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    //TODO 12.6 Complete onPause to store the DataSource object in SharedPreferences as a JSON string
+
+    //TODO 12.6 Complete onPause to store the DataSource in SharedPreferences as a JSON string
     @Override
     protected void onPause(){
         super.onPause();
         SharedPreferences.Editor prefsEditor = mPreferences.edit();
         Gson gson = new Gson();
-        String json = gson.toJson( dataSource );
-        prefsEditor.putString(KEY_DATA, json);
-        prefsEditor.apply();
-    }
-
-    //TODO 12.5b Write onActivityResult to get the data passed back from DataEntry and add to DataSource object
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if( requestCode == REQUEST_CODE_IMAGE && resultCode == Activity.RESULT_OK){
+        ArrayList<String> filePaths = new ArrayList<>();
+        ArrayList<String> imgNames = new ArrayList<>();
+        for (CardModel cm: dataSrc) {
+            String path = Utils.saveToInternalStorage(cm.getImg(), cm.getName(), this);
+            filePaths.add(path);
+            imgNames.add(cm.getName());
         }
-
-
+        String jsonImgs = gson.toJson( filePaths );
+        String jsonNames = gson.toJson( imgNames );
+        prefsEditor.putString(KEY_DATA, jsonImgs);
+        prefsEditor.putString(KEY_DATA_NAME, jsonNames);
+        prefsEditor.apply();
     }
 }
