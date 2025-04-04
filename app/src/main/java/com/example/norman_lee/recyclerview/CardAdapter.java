@@ -15,14 +15,10 @@ import java.util.ArrayList;
 
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder>{
 
-    Context context;
-    LayoutInflater mInflater;
     ArrayList<CardModel> dataSource;
 
     //TODO 11.3 Complete the constructor to initialize the DataSource instance variable
-    CardAdapter(Context context, ArrayList<CardModel> dataSource){
-        mInflater = LayoutInflater.from(context);
-        this.context = context;
+    CardAdapter(ArrayList<CardModel> dataSource){
         this.dataSource = dataSource;
     }
 
@@ -31,7 +27,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
     @NonNull
     @Override
     public CardViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View itemView = mInflater.inflate(R.layout.card, viewGroup, false);
+        View itemView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card,
+                viewGroup, false);
         return new CardViewHolder(itemView);
     }
 

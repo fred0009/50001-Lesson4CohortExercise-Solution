@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageViewAdded;
     ArrayList<CardModel> dataSrc = new ArrayList<>();
 
-    final String KEY_DATA = "SHARED_PREF_DATA";
+    final String KEY_DATA_PATH = "SHARED_PREF_DATA_PATH";
     final String KEY_DATA_NAME = "SHARED_PREF_DATA_NAME";
     final String LOGCAT = "POKEDEX";
     final String PREF_FILE = "mainsharedpref";
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         //TODO 12.8 Initialize your dataSource object with the Json string
         mPreferences = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
         Gson gson = new Gson();
-        String json = mPreferences.getString(KEY_DATA, "");
+        String json = mPreferences.getString(KEY_DATA_PATH, "");
         String jsonNames = mPreferences.getString(KEY_DATA_NAME, "");
 
         //TODO 11.2 Initialize your dataSource object with drawables resource
@@ -81,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO 11.3 --> Go to CardAdapter
         //TODO 11.8 Complete the necessary code to initialize your RecyclerView
-        cardAdapter = new CardAdapter(MainActivity.this, dataSrc);
+        cardAdapter = new CardAdapter(dataSrc);
         recyclerView.setAdapter(cardAdapter);
-        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this,2));
 
 
 
@@ -94,9 +95,8 @@ public class MainActivity extends AppCompatActivity {
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
-                        // YOU SAY WHAT YOU WANT TO DO WHEN YOU GET THE RESULT
-                        // get a Bundle object which contains the Extras
-                        Log.d(LOGCAT, "onActivityResult: " + result);
+                        // Result from DataEntryActivity is obtained
+                        // Get the data and insert it into datasource
                         Bundle b = result.getData().getExtras();
                         String name = b.getString(DataEntryActivity.KEY_NAME);
                         String path = b.getString(DataEntryActivity.KEY_PATH);
@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
                 return false;
-
             }
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         }
         String jsonImgs = gson.toJson( filePaths );
         String jsonNames = gson.toJson( imgNames );
-        prefsEditor.putString(KEY_DATA, jsonImgs);
+        prefsEditor.putString(KEY_DATA_PATH, jsonImgs);
         prefsEditor.putString(KEY_DATA_NAME, jsonNames);
         prefsEditor.apply();
     }
